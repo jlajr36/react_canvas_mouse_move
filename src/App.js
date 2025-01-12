@@ -11,42 +11,53 @@ function App() {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
 
-    // Function to draw circle and line from center to circle
-    const drawCircle = (x, y) => {
+    // Function to draw the circle and the line from the center to the circle
+    const drawCircle = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
-      
       const centerX = canvas.width / 2;
       const centerY = canvas.height / 2;
       
       // Draw line from the center to the circle
       ctx.beginPath();
       ctx.moveTo(centerX, centerY); 
-      ctx.lineTo(x, y); 
+      ctx.lineTo(circlePosition.current.x, circlePosition.current.y); 
       ctx.strokeStyle = 'red';
       ctx.stroke();
 
       // Draw the circle
       ctx.beginPath();
-      ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+      ctx.arc(circlePosition.current.x, circlePosition.current.y, radius, 0, 2 * Math.PI, false);
       ctx.fillStyle = 'blue';  
       ctx.fill();
       ctx.stroke();
     };
 
     // Initial drawing of circle
-    drawCircle(circlePosition.current.x, circlePosition.current.y);
+    drawCircle();
 
     // Handle mouse move event
     const handleMouseMove = (event) => {
       const mouseX = event.offsetX;
       const mouseY = event.offsetY;
 
-      // If dragging, update position
+      // If dragging, update position and constrain to the line
       if (isDragging.current) {
-        circlePosition.current = { x: mouseX, y: mouseY };
-        drawCircle(mouseX, mouseY);
-      } else {
-        drawCircle(circlePosition.current.x, circlePosition.current.y);
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+
+        // Calculate angle between the center and the mouse position
+        const angle = Math.atan2(mouseY - centerY, mouseX - centerX);
+
+        // Maintain the original distance from the center
+        const distance = Math.sqrt(
+          (circlePosition.current.x - centerX) ** 2 + (circlePosition.current.y - centerY) ** 2
+        );
+
+        // Update position of circle while maintaining the same distance
+        circlePosition.current.x = centerX + Math.cos(angle) * distance;
+        circlePosition.current.y = centerY + Math.sin(angle) * distance;
+
+        drawCircle();
       }
     };
 
@@ -56,6 +67,8 @@ function App() {
       const mouseY = event.offsetY;
 
       // Check if mouse is inside the circle
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
       const isInsideCircle = Math.sqrt(
         (mouseX - circlePosition.current.x) ** 2 + (mouseY - circlePosition.current.y) ** 2
       ) < radius;
