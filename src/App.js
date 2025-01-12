@@ -11,12 +11,23 @@ function App() {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
 
-    // Draw a circle and check for collision with mouse
+    // Draw the circle and the line from the center to the circle
     const drawCircle = (x, y) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+      
+      // Draw the line from the center of the canvas to the circle
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);  // Start point (middle of canvas)
+      ctx.lineTo(x, y);  // End point (circle position)
+      ctx.strokeStyle = 'red';  // Line color
+      ctx.stroke();
+
+      // Draw the circle
       ctx.beginPath();
       ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
-      ctx.fillStyle = 'blue';  // Set color
+      ctx.fillStyle = 'blue';  // Circle color
       ctx.fill();
       ctx.stroke();
     };
